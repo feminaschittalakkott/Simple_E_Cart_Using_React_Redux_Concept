@@ -13,10 +13,22 @@ const productSlice = createSlice({
     initialState: {
         products: [],
         loading: false,
-        error: ""
+        error: "",
+        productsPerPage: 10,
+        currentPage: 1
     },
     reducers: {
-        
+        nextPage(state, action){
+            state.currentPage++
+        },
+        prevPage(state, action){
+            state.currentPage--
+        },
+        searchWithKey(state, action){
+            if(action.payload){
+                state.products = state.products.filter(i=>i.title.toLowerCase().includes(action.payload.toLowerCase()))
+            }
+        }
     },
     extraReducers: (builder)=>{
         builder.addCase(fetchProductThunk.pending, (state, action)=>{
@@ -25,7 +37,7 @@ const productSlice = createSlice({
         builder.addCase(fetchProductThunk.fulfilled, (state, action)=>{
             state.loading = false
             state.products = action.payload
-        })
+        }),
         builder.addCase(fetchProductThunk.rejected, (state, action)=>{
             state.loading = false
             state.products = []
@@ -35,3 +47,4 @@ const productSlice = createSlice({
 })
 
 export default productSlice.reducer
+export const{ nextPage, prevPage, searchWithKey  } = productSlice.actions

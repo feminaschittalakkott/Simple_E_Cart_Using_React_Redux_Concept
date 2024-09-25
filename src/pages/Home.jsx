@@ -7,16 +7,33 @@ import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchProductThunk } from '../redux/slices/product_slice';
 import Spinner from 'react-bootstrap/Spinner';
+import { nextPage, prevPage } from '../redux/slices/product_slice';
 
 function Home() {
 
-    const { products, error, loading } = useSelector((state) => state.productReducer)
+    const { products, error, loading, productsPerPage, currentPage } = useSelector((state) => state.productReducer)
 
     const dispatch = useDispatch()
     useEffect(() => {
         dispatch(fetchProductThunk())
         console.log(products)
     }, [])
+
+    const totalPages = Math.ceil(products?.length/productsPerPage)
+    const lastProdIndex = currentPage * productsPerPage
+    const firstProdIndex = lastProdIndex - productsPerPage
+    const visibleProducts = products?.slice(firstProdIndex, lastProdIndex)
+
+    const handleNext=()=>{
+        if(currentPage < totalPages){
+            dispatch(nextPage())
+        }
+    }
+    const handlePrev=()=>{
+        if(currentPage > 1){
+            dispatch(prevPage())
+        }
+    }
 
     return (
         <>
@@ -56,7 +73,7 @@ function Home() {
                                         <>
                                             {
                                                 products.length > 0 &&
-                                                products?.map(
+                                                visibleProducts?.map(
                                                     i => (
                                                         <div className="col mb-5">
                                                             <div className="card h-100">
@@ -85,17 +102,18 @@ function Home() {
             <div className='mt-2 mb-5 d-flex justify-content-center'>
                 <ul className="pagination">
                     <li className="page-item">
-                        <a className="page-link" href="#" aria-label="Previous">
+                        <button className="page-link" aria-label="Previous" onClick={handlePrev}>
                             <span aria-hidden="true">&laquo;</span>
-                        </a>
+                        </button>
                     </li>
-                    <li className="page-item"><a className="page-link" href="#">1</a></li>
-                    <li className="page-item"><a className="page-link" href="#">2</a></li>
-                    <li className="page-item"><a className="page-link" href="#">3</a></li>
+                    {
+                        
+                    }
+                    <li className="page-item"><a className="page-link" href="#">{currentPage}/{totalPages}</a></li>
                     <li className="page-item">
-                        <a className="page-link" href="#" aria-label="Next">
+                        <button className="page-link" aria-label="Next" onClick={handleNext}>
                             <span aria-hidden="true">&raquo;</span>
-                        </a>
+                        </button>
                     </li>
                 </ul>
             </div>
